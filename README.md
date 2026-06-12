@@ -5,7 +5,7 @@
 gcc -g -fno-stack-protector -no-pie vuln.c -o vuln
 
 ## GDB session transcript
-
+```text
 assessment/buffoverflow » gdb -q -nx ./vuln
 Reading symbols from ./vuln...
 (gdb) break vulnerable
@@ -40,7 +40,7 @@ Stack level 0, frame at 0x7fffffffd610:
 8	}
 (gdb) x/gx $rbp+8
 0x7fffffffd608:	0x4141414141414141
-
+```
 ## Explanation
 
 void vulnerable(char *input)
