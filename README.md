@@ -61,3 +61,30 @@ The buffer is only of 16 bytes and strcpy() does no bounds checks and continues 
 As more bytes are copied overflow first overwrites the saved frame pointer and then the saved return address(The address is the address of the parent fucntion which called the vulnerable fucntion). The return address originally held the value 0x000000000040116a but after overflow we can see the value became 0x4141414141414141 (0x41 is the ascii for 'A').
 
 When the function returns and executes the ret instruction, the CPU loads this corrupted value into the instruction pointer (RIP) and attempts to jump to it, resulting in a segmentation fault because the address is invalid.
+
+## ASCII Stack Frame Diagram
+
+```text
+				Higher Memory Addresses
+                +-----------------------------+
+RBP + 8  -----> | Saved Return Address (RIP)  |
+                | 0x40116a                    |
+                +-----------------------------+
+RBP      -----> | Saved RBP                   |
+                +-----------------------------+                  
+RBP -16 ----->  | char buffer[16]             |
+                +-----------------------------+
+                Lower Memory Addresses
+```
+After the overflow 
+```text
+                Higher Memory Addresses
+                +-----------------------------+
+RBP + 8  -----> | 0x4141414141414141          | <- Overwritten return address
+                +-----------------------------+
+RBP      -----> | 0x4141414141414141          | <- Overwritten saved RBP
+                +-----------------------------+
+RBP -16 ----->  | AAAAAAAAAAAAAAAA            | <- buffer
+                +-----------------------------+
+                Lower Memory Addresses
+```
