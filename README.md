@@ -63,7 +63,7 @@ As more bytes are copied overflow first overwrites the saved frame pointer and t
 When the function returns and executes the ret instruction, the CPU loads this corrupted value into the instruction pointer (RIP) and attempts to jump to it, resulting in a segmentation fault because the address is invalid.
 
 ## ASCII Stack Frame Diagram
-
+Before the overflow
 ```text
 				Higher Memory Addresses
                 +-----------------------------+
