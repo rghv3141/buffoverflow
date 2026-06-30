@@ -44,9 +44,13 @@ Stack level 0, frame at 0x7fffffffd610:
 ## Explanation
 
 void vulnerable(char *input)
+
 {
-    char buffer[16];
-    strcpy(buffer, input);
+    
+	char buffer[16];
+    
+	strcpy(buffer, input);
+
 }
 
 Before the strcpy() executes
