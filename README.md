@@ -56,11 +56,11 @@ Before the strcpy() executes
 	saved RBP = 0x7fffffffd600
 	saved RIP = 0x7fffffffd608
 
-The buffer is only of 16 bytes and strcpy() does no bounds checks and continues copying from the source string until the null bytes is encountered. In our case we supplied an input greater than 16 bytes beacuse of which bytes are written beyond the end of buffer and brgin overwriting adjacent stack memory.
+The buffer is only of 16 bytes and `strcpy()` does no bounds checks and continues copying from the source string until the null bytes is encountered. In our case we supplied an input greater than 16 bytes beacuse of which bytes are written beyond the end of buffer and brgin overwriting adjacent stack memory.
 
 As more bytes are copied overflow first overwrites the saved frame pointer and then the saved return address(The address is the address of the parent fucntion which called the vulnerable fucntion). The return address originally held the value 0x000000000040116a but after overflow we can see the value became 0x4141414141414141 (0x41 is the ascii for 'A').
 
-When the function returns and executes the ret instruction, the CPU loads this corrupted value into the instruction pointer (RIP) and attempts to jump to it, resulting in a segmentation fault because the address is invalid.
+When the function returns and executes the ret instruction, the CPU loads this corrupted value into the instruction pointer RIP and attempts to jump to it, resulting in a segmentation fault because the address is invalid.
 
 ## ASCII Stack Frame Diagram
 Before the overflow
@@ -88,3 +88,10 @@ RBP -16 ----->  | AAAAAAAAAAAAAAAA            | <- buffer
                 +-----------------------------+
                 Lower Memory Addresses
 ```
+## Why the Stack Canary Catches the Overflow
+
+A stack canary is a random value placed on the stack by the compiler between local variables and the saved frame pointer (`RBP`) and return address (`RIP`).
+
+When `strcpy()` copies more than 16 bytes into `buffer`, the extra bytes overwrite memory beyond the buffer. Before the saved `RBP` and return address can be reached, the overflow overwrites the canary value.
+
+Before returning from the function, the compiler-generated code compares the current canary value with the original value stored when the function was entered. If the values differ, the program detects that a stack buffer overflow has occurred and immediately terminates (typically by calling `__stack_chk_fail()`) instead of executing the `ret` instruction.
